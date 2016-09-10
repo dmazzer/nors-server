@@ -47,7 +47,7 @@ RUN git clone $NORS_REPO $NORS_PATH
 WORKDIR $NORS_PATH
 RUN git checkout $NORS_BRANCH
 
-COPY nors.conf $NORS_PATH
+COPY nors.conf $NORS_PATH/nors.conf
 RUN sudo pip3 install -r requirements.txt
 
 ENTRYPOINT ["/run.sh"]

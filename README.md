@@ -59,7 +59,7 @@ Clone the repository and build the container:
 ```
 $ git clone https://github.com/dmazzer/nors-server.git
 $ cd nors-server/docker
-$ docker build --rm -t nors-server .
+$ docker build --no-cache --rm -t nors-server .
 ```
 
 Run the container:
@@ -67,7 +67,7 @@ Run the container:
 This command will start the server for the first time and will map the container port 9270 to host port 9270:
 
 ```
-$ docker run -rm -ti --name=nors-server -p 9270:9270 nors-server
+$ docker run --rm -ti --name=nors-server -p 9270:9270 nors-server
 ```
 
 After the first time the container named as nors-server was used, it can be started as a daemon with the command:

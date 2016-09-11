@@ -75,3 +75,9 @@ After the first time the container named as nors-server was used, it can be star
 ```
 $ docker run -ti -d -p 9270:9270 nors-server
 ```
+
+It is possible to run the container linked with the nors-mongodb container:
+
+```
+$ docker run -ti --rm -p 9270:9270 --link nors-mongodb --name nors-server nors-server
+```

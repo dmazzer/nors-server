@@ -10,7 +10,7 @@ from .utils import split_url
 
 
 class User(db.Document):
-    created_at = db.DateTimeField(default=datetime.now(), required=True)
+    created_at = db.DateTimeField(default=datetime.utcnow().isoformat(), required=True)
 #     id = db.StringField(max_length=255, required=True)
     username = db.StringField(max_length=64, required=True)
     password_hash = db.StringField(max_length=128, required=True)
@@ -69,7 +69,7 @@ class Sensor(db.Document):
 #     id = db.Column(db.Integer, primary_key=True)
 #     name = db.Column(db.String(64), index=True)
 #     items = db.relationship('Item', backref='sensor', lazy='dynamic')
-    created_at = db.DateTimeField(default=datetime.now(), required=True)
+    created_at = db.DateTimeField(default=datetime.utcnow().isoformat(), required=True)
     idd = db.StringField(max_length=255, required=True, unique=True)
     name = db.StringField(max_length=255, required=True)
     items = db.DecimalField()
@@ -100,7 +100,8 @@ class Stream(db.Document):
 #     id = db.Column(db.Integer, primary_key=True)
 #     name = db.Column(db.String(64), index=True)
 #     items = db.relationship('Item', backref='sensor', lazy='dynamic')
-    created_at = db.DateTimeField(default=datetime.now(), required=True)
+    tssvr = db.DateTimeField(default=datetime.utcnow().isoformat(), required=True)
+    ts = db.DateTimeField(required=True)
     sensor_id = db.StringField(max_length=255, required=True)
     sensor_data = db.DictField()
     
@@ -115,12 +116,14 @@ class Stream(db.Document):
             'self_url': self.get_url(),
             'sensor_id': self.sensor_id,
             'sensor_data':self.sensor_data,
+            'ts': self.ts
         }
  
     def import_data(self, data):
         try:
             self.sensor_id = data['sensor_id']
             self.sensor_data = data['sensor_data']
+            self.ts = data['ts']
         except KeyError as e:
             raise ValidationError('Invalid stream: missing ' + e.args[0])
         return self

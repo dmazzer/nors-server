@@ -23,10 +23,10 @@ def get_stream(idd):
 def new_stream():
     stream = Stream()
     stream.import_data(request.json)
-    print('---')
-    print (stream)
+#     print('---')
+#     print (stream)
     print (request.json)
-    print('---')
+#     print('---')
     try:
         stream.save()
     except NotUniqueError as err:

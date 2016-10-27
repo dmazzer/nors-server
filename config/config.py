@@ -10,6 +10,7 @@ __license__ = "MIT"
 __maintainer__ = "Daniel Mazzer"
 __email__ = "dmazzer@gmail.com"
 
+import os
 from configparser import ConfigParser
 from configparser import RawConfigParser
 from optparse import OptionParser
@@ -39,7 +40,7 @@ class Nors_Configuration:
         try:
             
             # ConfigParser initialization and configuration file read
-            config = RawConfigParser()
+            config = RawConfigParser(os.environ)
             config.read(config_filename)
             return config
             

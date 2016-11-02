@@ -96,37 +96,53 @@ class Sensor(db.Document):
         return self
 
 class Stream(db.Document):
-#     __tablename__ = 'sensors'
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(64), index=True)
-#     items = db.relationship('Item', backref='sensor', lazy='dynamic')
-    tssvr = db.DateTimeField(default=datetime.utcnow().isoformat(), required=True)
-    ts = db.DateTimeField(required=True)
-    sensor_id = db.StringField(max_length=255, required=True)
-    sensor_data = db.DictField()
+    def default_sensor_data():
+        a = {str(x): {str(y): {} for y in range (0,60)} for x in range (0,60)}
+        return(a)
     
+    id = db.StringField(primary_key=True, unique=True)
+    data = db.DictField(default=default_sensor_data())
+    
+
     def __repr__(self):
-        return '<Stream %r>' % self.idd    
-    
+        return '<Stream %r>' % self.id    
+     
     def get_url(self):
-        return url_for('api.get_stream', idd=str(self.sensor_id), _external=True)
- 
+        return url_for('api.get_stream', id=str(self.id), _external=True)
+  
     def export_data(self):
         return {
             'self_url': self.get_url(),
-            'sensor_id': self.sensor_id,
-            'sensor_data':self.sensor_data,
-            'ts': self.ts
+            'id': self.id,
+            'data':self.data,
         }
- 
-    def import_data(self, data):
+  
+    def import_data(self, sensor_data):
         try:
-            self.sensor_id = data['sensor_id']
-            self.sensor_data = data['sensor_data']
-            self.ts = data['ts']
+#             self.id = self.build_id(data)
+            self.data = self.update_sensor_data(self.data, sensor_data)
         except KeyError as e:
             raise ValidationError('Invalid stream: missing ' + e.args[0])
         return self
+
+    @staticmethod
+    def build_id(sensor_data):
+        '''
+        This method constructs the ID that will be used to store data in MongoDB
+        ID is constructed as follow (without brackets):
+        [sensor uuid]:[yyyymmddhh]
+        '''
+        myid = sensor_data['sensor_id'][:8]
+        ts_obj = datetime.strptime(sensor_data['ts'], "%Y-%m-%dT%H:%M:%S.%f")
+        ts = ts_obj.strftime('%Y') + ts_obj.strftime('%m') + ts_obj.strftime('%d') + ts_obj.strftime('%H') 
+        return myid +':'+ts
+
+    def update_sensor_data(self, local_data, sensor_data):
+        ts_obj = datetime.strptime(sensor_data['ts'], "%Y-%m-%dT%H:%M:%S.%f")
+        minute = ts_obj.strftime('%M')
+        second = ts_obj.strftime('%S')
+        local_data[minute][second] = sensor_data['sensor_data']
+        return(local_data)
 
 
 

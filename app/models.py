@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import url_for, current_app
 from app import db
-from .exceptions import ValidationError
+from .exceptions import ValidationError, TimestampParserError
 from .utils import split_url
 
 
@@ -97,7 +97,7 @@ class Sensor(db.Document):
 
 class Stream(db.Document):
     def default_sensor_data():
-        a = {str(x): {str(y): {} for y in range (0,60)} for x in range (0,60)}
+        a = {'%02d' % x: {'%02d' % y: {} for y in range (0,60)} for x in range (0,60)}
         return(a)
     
     id = db.StringField(primary_key=True, unique=True)
@@ -118,11 +118,7 @@ class Stream(db.Document):
         }
   
     def import_data(self, sensor_data):
-        try:
-#             self.id = self.build_id(data)
-            self.data = self.update_sensor_data(self.data, sensor_data)
-        except KeyError as e:
-            raise ValidationError('Invalid stream: missing ' + e.args[0])
+        self.data = self.update_sensor_data(self.data, sensor_data)
         return self
 
     @staticmethod
@@ -132,15 +128,28 @@ class Stream(db.Document):
         ID is constructed as follow (without brackets):
         [sensor uuid]:[yyyymmddhh]
         '''
-        myid = sensor_data['sensor_id'][:8]
-        ts_obj = datetime.strptime(sensor_data['ts'], "%Y-%m-%dT%H:%M:%S.%f")
-        ts = ts_obj.strftime('%Y') + ts_obj.strftime('%m') + ts_obj.strftime('%d') + ts_obj.strftime('%H') 
-        return myid +':'+ts
+        try:
+            myid = sensor_data['sensor_id'][:8]
+            #ts_obj = datetime.strptime(sensor_data['ts'], "%Y-%m-%dT%H:%M:%S.%f")
+            ts_obj = datetime_parser.parse(sensor_data['ts'])
+            ts = ts_obj.strftime('%Y') + ts_obj.strftime('%m') + ts_obj.strftime('%d') + ts_obj.strftime('%H') 
+            return myid +':'+ts
+        except KeyError as e:
+            print(str(e))
+            print(str(sensor_data))
+            raise ValidationError('Invalid sensor data: ' + str(sensor_data), e.args[0])
+            return None
 
     def update_sensor_data(self, local_data, sensor_data):
-        ts_obj = datetime.strptime(sensor_data['ts'], "%Y-%m-%dT%H:%M:%S.%f")
+        try:
+        #ts_obj = datetime.strptime(sensor_data['ts'], "%Y-%m-%dT%H:%M:%S.%f")
+            ts_obj = datetime_parser.parse(sensor_data['ts'])
+        except KeyError as e:
+            raise TimestampParserError('Invalid timestamp ' + sensor_data['ts'], e.args[0])
+        print(ts_obj)
         minute = ts_obj.strftime('%M')
         second = ts_obj.strftime('%S')
+        print(sensor_data)
         local_data[minute][second] = sensor_data['sensor_data']
         return(local_data)
 

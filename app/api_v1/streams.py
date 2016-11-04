@@ -5,6 +5,7 @@ from ..models import Stream
 from ..decorators import json, paginate
 from mongoengine import OperationError
 from mongoengine.errors import NotUniqueError
+from app.exceptions import InvalidUsage
 
 
 @api.route('/streams/', methods=['GET'])
@@ -22,6 +23,9 @@ def get_stream(id):
 @json
 def new_stream():
     stream_id = Stream.build_id(request.json)
+    if stream_id is None:
+        raise InvalidUsage('Malformed request syntax (fields ID or TS not found)', status_code=400)
+    
     stream = Stream.objects(id=stream_id).first()
     if stream is not None:
         stream.import_data(request.json)

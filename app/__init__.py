@@ -14,10 +14,13 @@ import os
 
 from flask import Flask, jsonify, g
 # from flask.ext.sqlalchemy import SQLAlchemy
-from flask_mongoengine import MongoEngine, MongoEngineSessionInterface
+from flask_mongoengine import MongoEngine
+# from flask_mongoengine import MongoEngineSessionInterface
+# from flask_debugtoolbar import DebugToolbarExtension
 from .decorators import json, no_cache, rate_limit
 from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.security import safe_str_cmp
+from .exceptions import InvalidUsage 
 
 # db = SQLAlchemy()
 db = MongoEngine()
@@ -43,7 +46,7 @@ def create_app(config_name):
     userid_table = {u.id: u for u in users}
 
     app = Flask(__name__)
-
+    
     # apply configuration
     cfg = os.path.join(os.getcwd(), 'config', config_name + '.py')
     app.config.from_pyfile(cfg)
@@ -58,7 +61,9 @@ def create_app(config_name):
     }
     
     db.init_app(app)
-    app.session_interface = MongoEngineSessionInterface(db)
+#     app.session_interface = MongoEngineSessionInterface(db)
+#     app.config['DEBUG_TB_PANELS'] = ['flask_mongoengine.panels.MongoDebugPanel']
+#     toolbar = DebugToolbarExtension(app)
 
     # register blueprints
     from .api_v1 import api as api_blueprint
@@ -105,3 +110,9 @@ def create_app(config_name):
         return {'server': 'Protype Server'}
 
     return app
+
+    @app.errorhandler(InvalidUsage)
+    def handle_invalid_usage(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response

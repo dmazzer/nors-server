@@ -1,6 +1,8 @@
+blinker==1.4
 configparser==3.5.0
 coverage==3.7.1
 Flask==0.10.1
+Flask-DebugToolbar==0.10.0
 Flask-HTTPAuth==2.2.1
 Flask-JWT==0.3.2
 flask-mongoengine==0.7.5
@@ -9,13 +11,15 @@ Flask-WTF==0.12
 httpie==0.8.0
 itsdangerous==0.24
 Jinja2==2.7.3
+keen==0.3.26
 MarkupSafe==0.23
 mongoengine==0.10.6
+pycryptodome==3.4.3
 Pygments==1.6
 PyJWT==1.4.0
 pymongo==3.2.2
 python-dateutil==2.2
-requests==2.3.0
+requests==2.10.0
 six==1.7.3
 SQLAlchemy==0.9.6
 Werkzeug==0.9.6

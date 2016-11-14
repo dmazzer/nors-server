@@ -31,6 +31,11 @@ if __name__ == '__main__':
     config = Nors_Configuration()
     server_ip = config.ReadConfig('server', 'ip')
     server_port = int(config.ReadConfig('server', 'port'))
+    
+#     if config.ReadConfig('kenn', 'enabled') is 'true':
+#         kenn_integration = True
+#     else:
+#         kenn_integration = False
 
     app.debug = True
     app.run(host=server_ip, port=server_port)

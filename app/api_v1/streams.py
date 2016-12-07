@@ -48,7 +48,7 @@ def new_stream():
             raise NotUniqueError(err)
     
     # PROTOTIPE: Keen integration
-    #keen.add_event("stream", request.json)
+    keen.add_event("stream", request.json)
     
 #     stream = Stream()
 #     stream.import_data(request.json)

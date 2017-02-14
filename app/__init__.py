@@ -22,6 +22,8 @@ from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.security import safe_str_cmp
 from .exceptions import InvalidUsage 
 
+from config.config import Nors_Configuration
+
 # db = SQLAlchemy()
 db = MongoEngine()
 
@@ -51,11 +53,16 @@ def create_app(config_name):
     cfg = os.path.join(os.getcwd(), 'config', config_name + '.py')
     app.config.from_pyfile(cfg)
 
+    # reading configurations from config file
+    config = Nors_Configuration()
+    database_ip = config.ReadConfig('database', 'ip')
+    database_port = int(config.ReadConfig('database', 'port'))
+
     # initialize database
     app.config['MONGODB_SETTINGS']  = {
     'db': 'project1',
-    'host': '127.0.0.1',
-    'port': 27017,
+    'host': database_ip,
+    'port': int(database_port),
 #    'username':'webapp',
 #    'password':'pwd123'
     }

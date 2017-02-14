@@ -39,7 +39,7 @@ class User(object):
 def create_app(config_name):
     """Create an application instance."""
     users = [
-        User(1, 'user1', 'abcxyz'),
+        User(1, 'admin', 'admin'),
         User(2, 'user2', 'abcxyz'),
         User(3, '3ae0112a-0fe4-11e6-8f2b-b827ebc6c8e4', 'password'),
     ]
@@ -60,7 +60,7 @@ def create_app(config_name):
 
     # initialize database
     app.config['MONGODB_SETTINGS']  = {
-    'db': 'project1',
+    'db': 'nors_devices',
     'host': database_ip,
     'port': int(database_port),
 #    'username':'webapp',

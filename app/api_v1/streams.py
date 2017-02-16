@@ -30,7 +30,12 @@ def new_stream():
     if stream_id is None:
         raise InvalidUsage('Malformed request syntax (fields ID or TS not found)', status_code=400)
     
-    stream = Stream.objects(id=stream_id).first()
+    stream = []
+    try:
+        stream = Stream.objects(id=stream_id).first()
+    except Exception as e:
+        print (e.message)
+        
     if stream is not None:
         stream.import_data(request.json)
         try:

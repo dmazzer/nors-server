@@ -57,14 +57,16 @@ def create_app(config_name):
     config = Nors_Configuration()
     database_ip = config.ReadConfig('database', 'ip')
     database_port = int(config.ReadConfig('database', 'port'))
+    database_username = config.ReadConfig('database', 'username')
+    database_password = config.ReadConfig('database', 'password')
 
     # initialize database
     app.config['MONGODB_SETTINGS']  = {
     'db': 'nors_devices',
     'host': database_ip,
-    'port': int(database_port),
-#    'username':'webapp',
-#    'password':'pwd123'
+    'port': database_port,
+    'username': database_username,
+    'password': database_password
     }
     
     db.init_app(app)
